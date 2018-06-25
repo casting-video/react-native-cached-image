@@ -39,8 +39,6 @@ function getImageProps(props) {
     return _.omit(props, ['source', 'defaultSource', 'fallbackSource', 'LoadingIndicator', 'activityIndicatorProps', 'style', 'useQueryParamsInCacheKey', 'renderImage', 'resolveHeaders']);
 }
 
-const CACHED_IMAGE_REF = 'cachedImage';
-
 class CachedImage extends React.Component {
 
     static propTypes = {
@@ -52,7 +50,7 @@ class CachedImage extends React.Component {
     };
 
     static defaultProps = {
-            renderImage: props => (<ImageBackground ref={CACHED_IMAGE_REF} {...props} />),
+            renderImage: (props, ref) => (<ImageBackground ref={ref} {...props} />),
             activityIndicatorProps: {},
     };
 
@@ -104,7 +102,7 @@ class CachedImage extends React.Component {
 
     setNativeProps(nativeProps) {
         try {
-            this.refs[CACHED_IMAGE_REF].setNativeProps(nativeProps);
+            this.cachedImageRef.setNativeProps(nativeProps);
         } catch (e) {
             console.error(e);
         }
@@ -172,14 +170,14 @@ class CachedImage extends React.Component {
                 key: `${props.key || source.uri}error`,
                 style,
                 source: this.props.fallbackSource
-            });
+            }, c => this.cachedImageRef = c);
         }
         return this.props.renderImage({
             ...props,
             key: props.key || source.uri,
             style,
             source
-        });
+        }, c => this.cachedImageRef = c);
     }
 
     renderLoader() {
@@ -224,7 +222,7 @@ class CachedImage extends React.Component {
                     {...activityIndicatorProps}
                     style={activityIndicatorStyle}/>
             )
-        });
+        }, c => this.cachedImageRef = c);
     }
 
 }
